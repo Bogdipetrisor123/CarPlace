@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CarPlace</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="sell">Sell</string>
+    <string name="favorites">Favorites</string>
+</resources>

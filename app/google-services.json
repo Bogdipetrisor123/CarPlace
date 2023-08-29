@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "778530668753",
+    "project_id": "carplace-fa09f",
+    "storage_bucket": "carplace-fa09f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778530668753:android:a69d883928738b213785f0",
+        "android_client_info": {
+          "package_name": "com.carplace"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "778530668753-un3k131h173s2c4pmtpjlvnrtdlo3u7s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHE-gOcfJpRCYDa9RpoFIt-SiCrT2s8os"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "778530668753-un3k131h173s2c4pmtpjlvnrtdlo3u7s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
