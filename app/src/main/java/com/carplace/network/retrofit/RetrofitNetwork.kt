@@ -13,7 +13,7 @@ import retrofit2.http.POST
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val BEARER_TOKEN = "Bearer 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"
+private const val BEARER_TOKEN = "Bearer"
 private const val BASE_URL = "https://api.openai.com/"
 
 private interface RetrofitNetworkApi {
