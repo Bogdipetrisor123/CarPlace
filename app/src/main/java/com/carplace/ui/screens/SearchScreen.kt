@@ -201,14 +201,14 @@ fun SearchFilterItemWithoutDialog(
             placeholder = { Text(text = "Min") },
             colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            onValueChange = { onFilterValueChange(true, it.toInt(), filterCategory) })
+            onValueChange = { onFilterValueChange(true, it.toIntOrNull() ?: 0 , filterCategory) })
         TextField(
             modifier = Modifier.weight(1f),
             value = if (maxValue != 0 ) { maxValue.toString() } else {""},
             placeholder = { Text(text = "Max") },
             colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            onValueChange = { onFilterValueChange(false, it.toInt(), filterCategory) })
+            onValueChange = { onFilterValueChange(false, it.toIntOrNull() ?: 0, filterCategory) })
     }
 }
 

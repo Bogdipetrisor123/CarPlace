@@ -5,22 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.carplace.domain.GetNearsCarsUseCase
-import com.carplace.domain.GetPopularCarsUseCase
-import com.carplace.domain.GetRecentAddedCarsUseCase
+import com.carplace.data.repository.CarsRepository
 import com.carplace.result.handle
-import com.carplace.ui.screens.Car
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getRecentAddedCarsUseCase: GetRecentAddedCarsUseCase,
-    private val getPopularCarsUseCase: GetPopularCarsUseCase,
-    private val getNearsCarsUseCase: GetNearsCarsUseCase,
+    private val carsRepository: CarsRepository
 ) : ViewModel() {
     var uiState by mutableStateOf(HomeUiState())
         private set
@@ -29,32 +23,29 @@ class HomeViewModel @Inject constructor(
         loadData()
     }
 
-    private fun loadData() {
+    private val popularCars = listOf("BMW", "Mercedes", "Audi", "Porsche")
+
+    fun loadData() {
+        uiState = uiState.copy(isRefreshing = true)
         viewModelScope.launch {
-            combine(
-                getRecentAddedCarsUseCase(),
-                getPopularCarsUseCase(),
-                getNearsCarsUseCase()
-            ) { recentAddedCars, popularCars, nearsCars ->
-                recentAddedCars.handle { recentAddedCarsResult ->
-                    popularCars.handle { popularCarsResult ->
-                        nearsCars.handle { nearsCarsResult ->
-                            uiState = uiState.copy(
-                                isInitComplete = true,
-                                recentAddedCars = recentAddedCarsResult.data,
-                                popularCars = popularCarsResult.data,
-                                nearsCars = nearsCarsResult.data
-                            )
-                        }
-                    }
+            carsRepository.getCars().collectLatest { result ->
+                result.handle { data ->
+                    uiState = uiState.copy(
+                        isInitComplete = true,
+                        isRefreshing = false,
+                        recentAddedCars = data.data.sortedByDescending { it.id },
+                        popularCars = data.data.filter { it.carDetails.make in popularCars },
+                        nearsCars = data.data.filter { it.location == "Cluj"}
+                    )
                 }
-            }.collect()
+            }
         }
     }
 }
 
 data class HomeUiState(
     val isInitComplete: Boolean = false,
+    val isRefreshing: Boolean = false,
     val recentAddedCars: List<Car> = emptyList(),
     val popularCars: List<Car> = emptyList(),
     val nearsCars: List<Car> = emptyList(),

@@ -9,11 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.carplace.domain.GetCarByIdUseCase
 import com.carplace.result.handle
 import com.carplace.ui.navigation.carIdArg
-import com.carplace.ui.screens.Car
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,13 +26,7 @@ class CarDetailsViewModel @Inject constructor(
         private set
 
     init {
-        viewModelScope.launch {
-            getCarByIdUseCase(carId).collectLatest { carResult ->
-                    carResult.handle { car ->
-                        uiState = uiState.copy(car = car.data, isInitComplete = true)
-                    }
-                }
-        }
+       uiState = uiState.copy(car = getCarByIdUseCase(carId), isInitComplete = true)
     }
 
 }

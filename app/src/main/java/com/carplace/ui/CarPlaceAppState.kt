@@ -9,17 +9,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.carplace.data.repository.AuthRepository
 import com.carplace.ui.navigation.TopLevelDestination
 import com.carplace.ui.navigation.authRoute
 import com.carplace.ui.navigation.carDetailsRoute
 import com.carplace.ui.navigation.carIdArg
 import com.carplace.ui.navigation.homeRoute
+import com.carplace.ui.navigation.myListingsRoute
 import com.carplace.ui.navigation.navigateToHome
+import com.carplace.ui.navigation.navigateToMyListings
 import com.carplace.ui.navigation.navigateToSearch
 import com.carplace.ui.navigation.navigateToSellCar
 import com.carplace.ui.navigation.searchRoute
 import com.carplace.ui.navigation.searchedCarsRoute
+import com.carplace.ui.navigation.sellCarRoute
 
 @Composable
 fun rememberCarPlaceAppState(
@@ -41,7 +43,8 @@ class CarPlaceAppState(
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() = when(currentDestination?.route) {
             homeRoute -> TopLevelDestination.HOME
-            searchRoute -> TopLevelDestination.Search
+            searchRoute -> TopLevelDestination.SEARCH
+            sellCarRoute -> TopLevelDestination.SELL
             else -> null
         }
 
@@ -68,9 +71,10 @@ class CarPlaceAppState(
         }
         when (topLevelDestination) {
             TopLevelDestination.HOME -> navController.navigateToHome(topLevelNavOptions)
-            TopLevelDestination.Search -> navController.navigateToSearch(topLevelNavOptions)
-            TopLevelDestination.Sell -> navController.navigateToSellCar(topLevelNavOptions)
-//            TopLevelDestination.Favorites -> TODO()
+            TopLevelDestination.SEARCH -> navController.navigateToSearch(topLevelNavOptions)
+            TopLevelDestination.SELL -> navController.navigateToSellCar(topLevelNavOptions)
+            TopLevelDestination.MY_LISTINGS -> navController.navigateToMyListings(topLevelNavOptions)
+        //            TopLevelDestination.Favorites -> TODO()
         }
     }
 }

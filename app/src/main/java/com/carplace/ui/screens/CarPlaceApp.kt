@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.carplace.ui.CarPlaceAppState
@@ -70,11 +69,12 @@ private fun CarPlaceBottomBar(
 
     NavigationBar {
         destinations.forEach { destination ->
-            val shouldShowDestination = if (destination == TopLevelDestination.Sell) {
-                hasSession
-            } else {
-                true
-            }
+            val shouldShowDestination =
+                if (destination == TopLevelDestination.SELL || destination == TopLevelDestination.MY_LISTINGS) {
+                    hasSession
+                } else {
+                    true
+                }
             if (shouldShowDestination) {
                 val selected = currentDestination.isTopLevelDestinationInHierarchy(destination)
                 NavigationBarItem(

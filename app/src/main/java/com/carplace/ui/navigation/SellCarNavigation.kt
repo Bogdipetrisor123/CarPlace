@@ -12,9 +12,7 @@ fun NavController.navigateToSellCar(navOptions: NavOptions? = null) {
     this.navigate(sellCarRoute,navOptions)
 }
 
-fun NavGraphBuilder.sellCarScreen(
-    onBackClick: () -> Unit,
-) {
+fun NavGraphBuilder.sellCarScreen() {
     composable(route = sellCarRoute) {
         SellCarRoute()
     }

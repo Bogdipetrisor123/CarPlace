@@ -3,7 +3,6 @@ package com.carplace.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import com.carplace.ui.CarPlaceAppState
 import com.carplace.ui.viewmodel.SearchViewModel
@@ -28,19 +27,21 @@ fun CarPlaceNavHost(
         authenticationScreen(goToHomeScreen = { navController.navigateToHome(null) })
         homeScreen(
             onCarClick = { carId -> navController.navigateToCarDetails(carId) },
-            onSearchBarClick = { appState.navigateToTopLevelDestination(TopLevelDestination.Search) }
+            onSearchBarClick = { appState.navigateToTopLevelDestination(TopLevelDestination.SEARCH) }
         )
         searchScreen(
             onSearchClick = { navController.navigateToSearchedCars() },
             onBackClick = {},
             viewModel = searchViewModel
         )
-        sellCarScreen(onBackClick = navController::popBackStack)
+        sellCarScreen()
         carDetailsScreen(onBackClick = navController::popBackStack)
         searchedCarsScreen(
             onBackClick = navController::popBackStack,
             onCarClick = { carId -> navController.navigateToCarDetails(carId) },
             viewModel = searchViewModel
         )
+        myListingsScreen(
+            onCarClick = { carId -> navController.navigateToCarDetails(carId) })
     }
 }

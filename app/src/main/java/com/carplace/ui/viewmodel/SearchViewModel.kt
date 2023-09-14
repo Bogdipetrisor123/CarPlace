@@ -4,18 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.carplace.domain.GetCarsByFiltersUseCase
-import com.carplace.result.handle
-import com.carplace.ui.screens.Car
 import com.carplace.ui.utils.getCategories
 import com.carplace.ui.utils.getFuelTypes
 import com.carplace.ui.utils.getLocations
 import com.carplace.ui.utils.getMakes
 import com.carplace.ui.utils.getModelsByMake
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,13 +22,10 @@ class SearchViewModel @Inject constructor(
         private set
 
     fun onSearchPressed() {
-        viewModelScope.launch {
-            getCarsByFiltersUseCase.invoke(uiState.chosenFilters).collectLatest { searchedCars ->
-                searchedCars.handle { result ->
-                    uiState = uiState.copy(isInitComplete = true, searchedCars = result.data)
-                }
-            }
-        }
+        uiState = uiState.copy(
+            isInitComplete = true,
+            searchedCars = getCarsByFiltersUseCase(uiState.chosenFilters)
+        )
     }
 
     fun changeDialogState(isOpen: Boolean, selectedFilter: FilterCategory) {
@@ -44,7 +36,6 @@ class SearchViewModel @Inject constructor(
     }
 
     fun onSelectFilter(option: FilterOption) {
-        //TODO : updateUiState
         when (uiState.currentSelectedFilter) {
             FilterCategory.MAKE -> uiState = uiState.copy(
                 makes = updateOptionStatus(
@@ -88,11 +79,21 @@ class SearchViewModel @Inject constructor(
     fun dismissDialog(category: FilterCategory) {
 
         when (category) {
-            FilterCategory.MAKE -> updateUiState(makes = uiState.makes.filter { it.isSelected }.map { it.option })
-            FilterCategory.MODEL -> updateUiState(models = uiState.models.filter { it.isSelected }.map { it.option })
-            FilterCategory.CATEGORY -> updateUiState(categories = uiState.categories.filter { it.isSelected }.map { it.option })
-            FilterCategory.LOCATION -> updateUiState(locations = uiState.locations.filter { it.isSelected }.map { it.option })
-            FilterCategory.FUEL_TYPE -> updateUiState(fuelTypes = uiState.fuelTypes.filter { it.isSelected }.map { it.option })
+            FilterCategory.MAKE -> updateUiState(makes = uiState.makes.filter { it.isSelected }
+                .map { it.option })
+
+            FilterCategory.MODEL -> updateUiState(models = uiState.models.filter { it.isSelected }
+                .map { it.option })
+
+            FilterCategory.CATEGORY -> updateUiState(categories = uiState.categories.filter { it.isSelected }
+                .map { it.option })
+
+            FilterCategory.LOCATION -> updateUiState(locations = uiState.locations.filter { it.isSelected }
+                .map { it.option })
+
+            FilterCategory.FUEL_TYPE -> updateUiState(fuelTypes = uiState.fuelTypes.filter { it.isSelected }
+                .map { it.option })
+
             else -> uiState = uiState.copy(openDialog = false)
         }
     }

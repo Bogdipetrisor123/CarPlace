@@ -6,10 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.carplace.data.repository.AuthRepository
 import com.carplace.data.repository.CarsRepository
 import com.carplace.result.Result
 import com.carplace.ui.enums.Type
-import com.carplace.ui.screens.Car
 import com.carplace.ui.screens.CarDetails
 import com.carplace.ui.utils.getCategories
 import com.carplace.ui.utils.getColors
@@ -26,7 +26,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SellCarViewModel @Inject constructor(private val repository: CarsRepository) : ViewModel() {
+class SellCarViewModel @Inject constructor(
+    private val repository: CarsRepository,
+    private val authRepository: AuthRepository
+) : ViewModel() {
     var uiState by mutableStateOf(SellCarUiState())
         private set
 
@@ -45,6 +48,8 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
     }
 
     private fun updateUiState(
+        title: String = uiState.title,
+        phoneNumber: String = uiState.phoneNumber,
         photosUri: List<Uri> = uiState.photosUri,
         makes: List<FilterOption> = uiState.makes,
         models: List<FilterOption> = uiState.models,
@@ -82,7 +87,9 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
         )
 
         uiState = uiState.copy(
+            title = title,
             photosUri = photosUri,
+            phoneNumber = phoneNumber,
             makes = makes,
             models = models,
             categories = categories,
@@ -106,7 +113,7 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
 
     fun onOptionSelected(
         type: Type,
-        option: FilterOption = FilterOption()
+        option: FilterOption
     ) {
         when (type) {
             Type.CATEGORY -> updateUiState(categories = uiState.categories.map {
@@ -185,22 +192,40 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
         }
     }
 
+    fun setPhotosUri(photosUri: List<Uri>) = updateUiState(photosUri = photosUri)
+
+    fun setPhoneNumber(number: String) = updateUiState(phoneNumber = number)
+
+    fun setCarTitle(title: String) = updateUiState(title = title)
+
     fun onAddCarClicked() {
         updateUiState(isLoading = true)
         viewModelScope.launch {
             repository.addCar(
                 Car(
-                    id = 1,
-                    title = "BMW E90",
+                    id = repository.getLastAddedCar().id + 1,
+                    userEmail = authRepository.getCurrentUser()?.email ?: "",
+                    phoneNumber = uiState.phoneNumber,
+                    title = uiState.title,
                     price = uiState.price,
                     km = uiState.mileage,
                     location = uiState.locations.first { it.isSelected }.option,
                     carDetails = CarDetails(
                         make = uiState.makes.first { it.isSelected }.option,
-                        model = "E90",
-                    )
-
-                )
+                        model = uiState.models.first { it.isSelected }.option,
+                        category = uiState.categories.first { it.isSelected }.option,
+                        cubicCapacity = uiState.cubicCapacity.toString(),
+                        horsePower = uiState.horsePower.toString(),
+                        fuelType = uiState.fuelTypes.first { it.isSelected }.option,
+                        numberOfSeats = uiState.seatsNumber.toString(),
+                        gearBox = uiState.gearBoxTypes.first { it.isSelected }.option,
+                        firstRegistration = uiState.firstRegistration.toString(),
+                        colour = uiState.colors.first { it.isSelected }.option,
+                        condition = uiState.condition.first { it.isSelected }.option
+                    ),
+                    carFeatures = uiState.features.filter { it.isSelected }
+                ),
+                photosUri = uiState.photosUri
             ).collectLatest { result ->
                 uiState = when (result) {
                     is Result.Success -> uiState.copy(isLoading = false)
@@ -225,7 +250,10 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
         firstRegistration: Int = uiState.firstRegistration,
         colors: List<FilterOption> = uiState.colors,
         condition: List<FilterOption> = uiState.condition,
-        features: List<FilterOption> = uiState.features
+        features: List<FilterOption> = uiState.features,
+        phoneNumber: String = uiState.phoneNumber,
+        photosUri: List<Uri> = uiState.photosUri,
+        title: String = uiState.title
     ): Boolean {
         val nonEmptyLists = listOf(
             makes,
@@ -239,7 +267,7 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
             features
         ).all { it.any { it.isSelected } }
 
-        val nonZeroInts = listOf(
+        val numberInputFields = listOf(
             mileage,
             price,
             cubicCapacity,
@@ -247,11 +275,13 @@ class SellCarViewModel @Inject constructor(private val repository: CarsRepositor
             seatsNumber,
             firstRegistration
         ).all { it > 0 }
-        return nonEmptyLists && nonZeroInts
+        return nonEmptyLists && numberInputFields && phoneNumber.isNotEmpty() && photosUri.isNotEmpty() && title.isNotEmpty()
     }
 }
 
 data class SellCarUiState(
+    val title: String = "",
+    val phoneNumber: String = "",
     val photosUri: List<Uri> = emptyList(),
     val makes: List<FilterOption> = emptyList(),
     val models: List<FilterOption> = emptyList(),
@@ -270,4 +300,17 @@ data class SellCarUiState(
     val features: List<FilterOption> = emptyList(),
     val buttonEnabled: Boolean = false,
     val isLoading: Boolean = false
+)
+
+data class Car(
+    val id: Int = 0,
+    val userEmail: String = "",
+    val phoneNumber: String = "",
+    val title: String = "",
+    val price: Int = 0,
+    val km: Int = 0,
+    val location: String = "",
+    val images: List<String> = emptyList(),
+    val carDetails: CarDetails = CarDetails(),
+    val carFeatures: List<FilterOption> = emptyList()
 )

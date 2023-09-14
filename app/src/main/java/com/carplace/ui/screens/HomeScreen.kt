@@ -2,7 +2,10 @@ package com.carplace.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,6 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,60 +31,75 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.carplace.R
+import com.carplace.ui.viewmodel.Car
 import com.carplace.ui.viewmodel.HomeUiState
 import com.carplace.ui.viewmodel.HomeViewModel
 
 @Composable
 internal fun HomeRoute(
     onCarClick: (id: Int) -> Unit,
-    onSearchBarClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
     HomeScreen(
         uiState = uiState,
         onCarClick = onCarClick,
-        onSearchBarClick = onSearchBarClick
+        loadData = viewModel::loadData
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HomeScreen(uiState: HomeUiState, onCarClick: (id: Int) -> Unit, onSearchBarClick: () -> Unit) {
+fun HomeScreen(uiState: HomeUiState, onCarClick: (id: Int) -> Unit, loadData: () -> Unit) {
     var showChatGptDialog by remember { mutableStateOf(false) }
-    if (uiState.isInitComplete) {
-        if (showChatGptDialog) {
-            ChatGptDialog { showChatGptDialog = false }
-        }
-        LazyColumn {
-            item {
-                SearchBar(onSearchBarClick = { showChatGptDialog = true })
-                ShowCars(
-                    title = "Recent added cars",
-                    cars = uiState.recentAddedCars,
-                    onCarClick = onCarClick
-                )
-                ShowCars(
-                    title = "Popular cars",
-                    cars = uiState.popularCars,
-                    onCarClick = onCarClick
-                )
-                ShowCars(
-                    title = "Cars nears you",
-                    cars = uiState.nearsCars,
-                    onCarClick = onCarClick
-                )
+    val pullRefreshState =
+        rememberPullRefreshState(refreshing = uiState.isRefreshing, onRefresh = loadData)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+    ) {
+        if (uiState.isInitComplete) {
+            if (showChatGptDialog) {
+                ChatGptDialog { showChatGptDialog = false }
             }
+            LazyColumn {
+                item {
+                    SearchBar(onSearchBarClick = { showChatGptDialog = true })
+                    ShowCars(
+                        title = "Recent added cars",
+                        cars = uiState.recentAddedCars,
+                        onCarClick = onCarClick
+                    )
+                    ShowCars(
+                        title = "Popular cars",
+                        cars = uiState.popularCars,
+                        onCarClick = onCarClick
+                    )
+                    ShowCars(
+                        title = "Cars nears you",
+                        cars = uiState.nearsCars,
+                        onCarClick = onCarClick
+                    )
+                }
+            }
+        } else {
+            LoadingIndicator()
         }
-    } else {
-        LoadingIndicator()
+        PullRefreshIndicator(
+            refreshing = uiState.isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -112,7 +134,9 @@ fun SearchBar(onSearchBarClick: () -> Unit) {
 fun CarItem(
     modifier: Modifier,
     car: Car,
-    onCarClick: (id: Int) -> Unit
+    navigateFromMyListings: Boolean = false,
+    onDeleteClick: (Int) -> Unit = {},
+    onCarClick: (Int) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -132,11 +156,30 @@ fun CarItem(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            painter = painterResource(id = car.imagesRes.first()),
+            painter = rememberAsyncImagePainter(car.images.first()),
             contentDescription = "",
             contentScale = ContentScale.FillWidth,
         )
-        Text(modifier = modifier, text = car.title, style = MaterialTheme.typography.titleLarge)
+        if (navigateFromMyListings) {
+            Row {
+                Text(
+                    modifier = modifier.weight(1f),
+                    text = car.title,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    modifier = modifier.clickable { onDeleteClick(car.id) },
+                    text = "Delete",
+                    color = Color.Red,
+                )
+            }
+        } else {
+            Text(
+                modifier = modifier,
+                text = car.title,
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
         Row(modifier = Modifier.padding(bottom = 4.dp)) {
             Text(
                 modifier = modifier.weight(1f),
@@ -169,17 +212,6 @@ private fun ShowCars(
     }
 }
 
-data class Car(
-    val id: Int = 0,
-    val title: String = "",
-    val price: Int = 0,
-    val km: Int = 0,
-    val location: String = "",
-    val imagesRes: List<Int> = emptyList(),
-    val carDetails: CarDetails = CarDetails(),
-    val carFeatures: CarFeatures = CarFeatures()
-)
-
 data class CarDetails(
     val make: String = "",
     val model: String = "",
@@ -204,31 +236,5 @@ data class CarDetails(
         Pair("First Registration: ", firstRegistration),
         Pair("Colour: ", colour),
         Pair("Condition: ", condition),
-    )
-}
-
-data class CarFeatures(
-    val abs: String = "",
-    val adaptiveCruiseControl: String = "",
-    val ambientLighting: String = "",
-    val appleCarPlay: String = "",
-    val adaptiveCorneringLights: String = "",
-    val alloyWheels: String = "",
-    val androidAuto: String = "",
-    val armRest: String = "",
-    val bluetooth: String = "",
-    val biXenonHeadLights: String = "",
-) {
-    fun getFeatures() = listOf(
-        Pair("Abs: ", abs),
-        Pair("Adaptive Cruise Control: ", adaptiveCruiseControl),
-        Pair("Ambient Lighting: ", ambientLighting),
-        Pair("Apple Car Play: ", appleCarPlay),
-        Pair("Adaptive Cornering Lights: ", adaptiveCorneringLights),
-        Pair("Alloy Wheels: ", alloyWheels),
-        Pair("Android Auto: ", androidAuto),
-        Pair("Arm rest: ", armRest),
-        Pair("Bluetooth: ", bluetooth),
-        Pair("Bi-xenon headlights: ", biXenonHeadLights),
     )
 }

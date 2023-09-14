@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.carplace.ui.viewmodel.SearchUiState
 import com.carplace.ui.viewmodel.SearchViewModel
 import com.carplace.R
+import com.carplace.ui.viewmodel.Car
 
 @Composable
 internal fun SearchedCarsRoute(
@@ -43,7 +44,7 @@ fun SearchedCarsScreen(
         Column {
             TopAppBar(
                 title = {
-                        Text(text = "Results")
+                    Text(text = "Results")
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -77,7 +78,12 @@ fun SearchedCarsScreen(
 }
 
 @Composable
-fun SearchedCars(cars: List<Car>, onCarClick: (Int) -> Unit = {}) {
+fun SearchedCars(
+    cars: List<Car>,
+    onCarClick: (Int) -> Unit = {},
+    navigateFromMyListings: Boolean = false,
+    onDeleteClick: (Int) -> Unit = {}
+) {
     LazyColumn(
         modifier = Modifier.padding(top = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -86,7 +92,9 @@ fun SearchedCars(cars: List<Car>, onCarClick: (Int) -> Unit = {}) {
             CarItem(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 car = car,
-                onCarClick = onCarClick
+                onCarClick = onCarClick,
+                navigateFromMyListings = navigateFromMyListings,
+                onDeleteClick = onDeleteClick
             )
         }
     }

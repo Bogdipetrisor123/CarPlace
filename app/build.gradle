@@ -5,6 +5,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.android.gms.oss-licenses-plugin")
     id 'com.google.gms.google-services'
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
@@ -76,12 +77,15 @@ dependencies {
     // Declare the dependency for the Cloud Firestore library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     implementation (libs.retrofit.core)
     implementation (libs.retrofit.kotlin.serialization)
     implementation (libs.converter.gson)
     implementation (libs.okhttp.logging)
     implementation (libs.kotlinx.serialization.json)
+    implementation (libs.retrofit.kotlin.serialization)
+
 
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences)
@@ -89,7 +93,6 @@ dependencies {
     implementation(libs.glide.compose)
     implementation(libs.coil.kt.compose)
     implementation(libs.coil.kt.svg)
-
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

@@ -32,7 +32,6 @@ import com.carplace.ui.viewmodel.AuthenticationViewModel
 
 @Composable
 fun AuthScreen(viewModel: AuthenticationViewModel = hiltViewModel(), goToHomeScreen: () -> Unit) {
-
     val uiState = viewModel.uiState
 
     AuthScreenUi(
@@ -45,7 +44,6 @@ fun AuthScreen(viewModel: AuthenticationViewModel = hiltViewModel(), goToHomeScr
         onLoginTextButtonClicked = { viewModel.updateShowLoginFlag(true) },
         onContinueWithoutAccountClicked = goToHomeScreen
     )
-
     LaunchedEffect(key1 = uiState.authenticationState) {
         if (uiState.authenticationState is AuthenticationState.Success) {
             goToHomeScreen.invoke()
@@ -130,7 +128,6 @@ private fun AuthScreenUi(
                 )
             }
         }
-
         if (uiState.showLogin) {
             Text(text = "Sign Up", textAlign = TextAlign.Center,
                 modifier = Modifier.clickable { onSignUpTextButtonClicked.invoke() })
@@ -138,7 +135,6 @@ private fun AuthScreenUi(
             Text(text = "Login", textAlign = TextAlign.Center,
                 modifier = Modifier.clickable { onLoginTextButtonClicked.invoke() })
         }
-
         Text(text = "Continue with no account", textAlign = TextAlign.Center,
             modifier = Modifier.clickable { onContinueWithoutAccountClicked.invoke() })
     }

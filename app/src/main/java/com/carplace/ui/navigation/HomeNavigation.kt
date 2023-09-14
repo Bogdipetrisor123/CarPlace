@@ -20,8 +20,7 @@ fun NavGraphBuilder.homeScreen(
     // destination may have own search screen's back stack.
     composable(route = homeRoute) {
         HomeRoute(
-            onCarClick = onCarClick,
-            onSearchBarClick = onSearchBarClick
+            onCarClick = onCarClick
         )
     }
 }

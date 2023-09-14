@@ -27,6 +27,7 @@ class AuthenticationViewModel @Inject constructor(private val repository: AuthRe
                 when (result) {
                     is Result.Success -> {
                         updateAuthenticationState(state = AuthenticationState.Default)
+                        uiState = uiState.copy(email = "", password = "")
                     }
 
                     is Result.Error -> {

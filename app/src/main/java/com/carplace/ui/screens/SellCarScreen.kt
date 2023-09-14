@@ -74,7 +74,10 @@ internal fun SellCarRoute(
                 uiState = viewModel.uiState,
                 onDataChange = viewModel::onOptionSelected,
                 onValueChange = viewModel::onValueChange,
-                onAddCarClick = viewModel::onAddCarClicked
+                onAddCarClick = viewModel::onAddCarClicked,
+                setPhotosUri = viewModel::setPhotosUri,
+                setPhoneNumber = viewModel::setPhoneNumber,
+                setTitle = viewModel::setCarTitle
             )
         }
     }
@@ -85,13 +88,18 @@ fun SellCarScreen(
     uiState: SellCarUiState,
     onDataChange: (type: Type, filterOption: FilterOption) -> Unit,
     onValueChange: (Type, Int) -> Unit,
-    onAddCarClick: () -> Unit
+    onAddCarClick: () -> Unit,
+    setPhotosUri: (List<Uri>) -> Unit,
+    setPhoneNumber: (String) -> Unit,
+    setTitle: (String) -> Unit
 ) {
-    AddCarPhotos()
+    AddCarPhotos(setPhotosUri = setPhotosUri)
     ShowCarDetails(
         uiState = uiState,
         onDataChange = onDataChange,
-        onValueChange = onValueChange
+        onValueChange = onValueChange,
+        setPhoneNumber = setPhoneNumber,
+        setTitle = setTitle
     )
     Button(
         modifier = Modifier
@@ -108,11 +116,14 @@ fun SellCarScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowCarDetails(
     uiState: SellCarUiState,
     onDataChange: (type: Type, filterOption: FilterOption) -> Unit,
-    onValueChange: (Type, Int) -> Unit
+    onValueChange: (Type, Int) -> Unit,
+    setPhoneNumber: (String) -> Unit,
+    setTitle: (String) -> Unit
 ) {
     CarDetailSection(
         title = "Make",
@@ -134,6 +145,48 @@ fun ShowCarDetails(
         type = Type.CATEGORY,
         onDataChange = onDataChange
     )
+    TitleSection(text = "Phone number")
+    Row(
+        modifier = Modifier
+            .background(color = Color.White)
+            .padding(vertical = 2.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val focusManager = LocalFocusManager.current
+        TextField(
+            modifier = Modifier.weight(1f),
+            value = uiState.phoneNumber.ifEmpty {
+                ""
+            },
+            placeholder = { Text(text = "Enter a value") },
+            colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.NumberPassword,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.moveFocus(FocusDirection.Next) }),
+            onValueChange = { setPhoneNumber(it) })
+    }
+    TitleSection(text = "Title")
+    Row(
+        modifier = Modifier
+            .background(color = Color.White)
+            .padding(vertical = 2.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        TextField(
+            modifier = Modifier.weight(1f),
+            value = uiState.title.ifEmpty {
+                ""
+            },
+            placeholder = { Text(text = "Enter a value") },
+            colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
+            onValueChange = { setTitle(it) })
+    }
     CarDetailSectionForNumberInput(
         title = "Price",
         value = uiState.price,
@@ -209,10 +262,10 @@ fun ShowCarDetails(
 }
 
 @Composable
-fun AddCarPhotos() {
+fun AddCarPhotos(setPhotosUri: (List<Uri>) -> Unit) {
     TitleSection(text = "Add photos with your car")
 
-    val photosUri = remember { mutableStateListOf<Uri>() } // Remember the list of selected URIs
+    val photosUri = remember { mutableStateListOf<Uri>() }.also { setPhotosUri(it) } // Remember the list of selected URIs
 
     val selectMultipleImagesLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetMultipleContents()

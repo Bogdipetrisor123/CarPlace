@@ -291,7 +291,6 @@ enum class CarLocation(val location: FilterOption) {
     PITESTI(FilterOption("Pitesti")),
     TARGU_MURES(FilterOption("Targu Mures")),
     BAIA_MARE(FilterOption("Baia Mare")),
-    CLUJ_NAPOCA(FilterOption("Cluj-Napoca")),
     SUCEAVA(FilterOption("Suceava"))
 }
 
@@ -351,7 +350,6 @@ enum class CarFeatures(val feature: FilterOption) {
 }
 
 enum class Type {
-    URI,
     MAKE,
     MODELS,
     CATEGORY,
