@@ -120,7 +120,7 @@ fun SearchBar(onSearchBarClick: () -> Unit) {
             IconButton(onClick = { }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                    contentDescription = "navigationIconContentDescription",
+                    contentDescription = "ChatGPTSearchBar",
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
@@ -157,7 +157,7 @@ fun CarItem(
                 .weight(1f)
                 .fillMaxWidth(),
             painter = rememberAsyncImagePainter(car.images.first()),
-            contentDescription = "",
+            contentDescription = "CarPagerItem",
             contentScale = ContentScale.FillWidth,
         )
         if (navigateFromMyListings) {
