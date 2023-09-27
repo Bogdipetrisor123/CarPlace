@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,7 +54,7 @@ fun AuthScreen(viewModel: AuthenticationViewModel = hiltViewModel(), goToHomeScr
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun AuthScreenUi(
+fun AuthScreenUi(
     uiState: AuthenticationUiState,
     updateEmail: (String) -> Unit,
     updatePassword: (String) -> Unit,
@@ -78,7 +79,7 @@ private fun AuthScreenUi(
             },
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp).testTag("Auth screen page title")
         )
 
         OutlinedTextField(
@@ -91,7 +92,7 @@ private fun AuthScreenUi(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp).testTag("Email Input")
         )
 
         OutlinedTextField(
@@ -105,7 +106,7 @@ private fun AuthScreenUi(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp).testTag("Password Input")
         )
 
         Button(
@@ -119,7 +120,7 @@ private fun AuthScreenUi(
             if (uiState.authenticationState is AuthenticationState.Loading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             } else {
-                Text(
+                Text(modifier = Modifier.testTag("Auth screen button"),
                     text = if (uiState.showLogin) {
                         "Login"
                     } else {
@@ -130,12 +131,12 @@ private fun AuthScreenUi(
         }
         if (uiState.showLogin) {
             Text(text = "Sign Up", textAlign = TextAlign.Center,
-                modifier = Modifier.clickable { onSignUpTextButtonClicked.invoke() })
+                modifier = Modifier.clickable { onSignUpTextButtonClicked.invoke() }.testTag("Switch to sign up screen button"))
         } else {
             Text(text = "Login", textAlign = TextAlign.Center,
-                modifier = Modifier.clickable { onLoginTextButtonClicked.invoke() })
+                modifier = Modifier.clickable { onLoginTextButtonClicked.invoke() }.testTag("Switch to login screen button"))
         }
         Text(text = "Continue with no account", textAlign = TextAlign.Center,
-            modifier = Modifier.clickable { onContinueWithoutAccountClicked.invoke() })
+            modifier = Modifier.clickable { onContinueWithoutAccountClicked.invoke() }.testTag("test"))
     }
 }
