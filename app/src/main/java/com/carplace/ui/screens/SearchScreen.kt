@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -162,7 +163,8 @@ fun SearchFilterItem(
         Text(
             modifier = Modifier
                 .padding(start = 16.dp)
-                .weight(1f),
+                .weight(1f)
+                .testTag(filterCategory.getFilterName()),
             text = if (values.isNotEmpty()) values.joinToString(", ") else "Choose",
         )
         Icon(
@@ -196,14 +198,14 @@ fun SearchFilterItemWithoutDialog(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         TextField(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).testTag("${filterCategory.getFilterName()} min"),
             value = if (minValue != 0 ) { minValue.toString() } else {""},
             placeholder = { Text(text = "Min") },
             colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             onValueChange = { onFilterValueChange(true, it.toIntOrNull() ?: 0 , filterCategory) })
         TextField(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).testTag("${filterCategory.getFilterName()} max"),
             value = if (maxValue != 0 ) { maxValue.toString() } else {""},
             placeholder = { Text(text = "Max") },
             colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),

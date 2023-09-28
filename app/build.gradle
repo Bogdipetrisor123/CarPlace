@@ -19,7 +19,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.carplace.CarPlaceTestRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -79,12 +79,12 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
 
-    implementation (libs.retrofit.core)
-    implementation (libs.retrofit.kotlin.serialization)
-    implementation (libs.converter.gson)
-    implementation (libs.okhttp.logging)
-    implementation (libs.kotlinx.serialization.json)
-    implementation (libs.retrofit.kotlin.serialization)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.kotlin.serialization)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit.kotlin.serialization)
 
 
     implementation(libs.androidx.dataStore.core)
@@ -102,7 +102,15 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.0")
 // Needed for createAndroidComposeRule, but not createComposeRule:
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.4.0")
-    debugImplementation "androidx.test:monitor:1.6.1"}
+    debugImplementation "androidx.test:monitor:1.6.1"
+
+    androidTestImplementation(libs.hilt.android.testing)
+    // ...with Kotlin.
+    kaptAndroidTest(libs.hilt.compiler)
+
+    api(libs.kotlinx.coroutines.test)
+}
+
 
 kapt {
     correctErrorTypes = true
